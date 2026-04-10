@@ -7,7 +7,10 @@ import cloudy from "./assets/cloudy.png";
 import rain from "./assets/rain.png";
 import snow from "./assets/snow.png";
 import thunder from "./assets/thunder.png";
-import haze from "./assets/fog.png";
+import haze from "./assets/haze.png";
+import fog from "./assets/fog.png";
+import mist from "./assets/mist.png";
+import drizzle from "./assets/drizzle.png";
 
 function App() {
   const [weatherData, setWeatherData] = useState(null);
@@ -58,6 +61,12 @@ function App() {
         return thunder;
       case "Haze":
         return haze;
+      case "Fog":
+        return fog;
+      case "Mist":
+        return mist;
+      case "Drizzle":
+        return drizzle;
       default:
         return sun;
     }
@@ -90,6 +99,7 @@ function App() {
           <p className={styles.temperature}>
             {Math.round(weatherData.main.temp)}°C
           </p>
+          <p className={styles.cityweather}>{weatherData.weather[0].main}</p>
           <p className={styles.city}>
             {weatherData.name}, {weatherData.sys.country}
           </p>
