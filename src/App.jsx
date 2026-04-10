@@ -1,23 +1,36 @@
 import { FaSearchLocation, FaWind } from "react-icons/fa";
 import { IoWater } from "react-icons/io5";
-import sun from "./assets/sun.png";
 import styles from "./App.module.css";
 import { useState } from "react";
+import sun from "./assets/sun.png";
+import cloudy from "./assets/cloudy.png";
+import rain from "./assets/rain.png";
+import snow from "./assets/snow.png";
+import thunder from "./assets/thunder.png";
+import haze from "./assets/fog.png";
 
 function App() {
   const [weatherData, setWeatherData] = useState(null);
+  const [error, setError] = useState(null);
 
   const API_KEY = import.meta.env.VITE_API_KEY;
 
   const handleFetch = async (city) => {
     try {
+      setError(null);
       const apiLink = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
       const response = await fetch(apiLink);
+
+      if (!response.ok) {
+        throw new Error("City not found");
+      }
       const data = await response.json();
-      console.log(data);
       setWeatherData(data);
+      //console.log(data);
     } catch (error) {
       console.error("Error fetching weather data:", error);
+      setError(error.message);
+      setWeatherData(null);
     }
   };
 
@@ -26,6 +39,28 @@ function App() {
     const data = new FormData(e.target);
     const searchCity = data.get("search");
     handleFetch(searchCity);
+    e.target.reset();
+  };
+
+  const getWeatherIcon = () => {
+    if (!weatherData) return sun;
+    const condition = weatherData?.weather?.[0]?.main;
+    switch (condition) {
+      case "Clear":
+        return sun;
+      case "Clouds":
+        return cloudy;
+      case "Rain":
+        return rain;
+      case "Snow":
+        return snow;
+      case "Thunderstorm":
+        return thunder;
+      case "Haze":
+        return haze;
+      default:
+        return sun;
+    }
   };
 
   return (
@@ -34,29 +69,53 @@ function App() {
         <input
           type="text"
           name="search"
-          id="search"
-          placeholder="City"
+          placeholder="Enter City..."
           className={styles.searchBar}
+          required
         />
         <button type="submit" className={styles.searchBtn}>
           <FaSearchLocation />
         </button>
       </form>
-      <img className={styles.weatherIcon} src={sun} alt="sun" />
-      <p className={styles.temperature}>
-        {Math.round(weatherData?.main?.temp)}°C
-      </p>
-      <p className={styles.city}>{weatherData?.name}</p>
-      <div className={styles.extraInfo}>
-        <div className={styles.infoContainer}>
-          <IoWater className={styles.icon} />
-          <div>Humidity: {weatherData?.main?.humidity}%</div>
-        </div>
-        <div className={styles.infoContainer}>
-          <FaWind className={styles.icon} />
-          <div>Windspeed: {weatherData?.wind?.speed} m/s</div>
-        </div>
-      </div>
+
+      {error && <p className={styles.error}>{error}</p>}
+
+      {weatherData && (
+        <>
+          <img
+            className={styles.weatherIcon}
+            src={getWeatherIcon()}
+            alt="Weather Condition"
+          />
+          <p className={styles.temperature}>
+            {Math.round(weatherData.main.temp)}°C
+          </p>
+          <p className={styles.city}>
+            {weatherData.name}, {weatherData.sys.country}
+          </p>
+
+          <div className={styles.extraInfo}>
+            <div className={styles.infoContainer}>
+              <IoWater className={styles.icon} />
+              <div>
+                <p>Humidity</p>
+                <strong>{weatherData.main.humidity}%</strong>
+              </div>
+            </div>
+            <div className={styles.infoContainer}>
+              <FaWind className={styles.icon} />
+              <div>
+                <p>Wind Speed</p>
+                <strong>{weatherData.wind.speed} m/s</strong>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {!weatherData && !error && (
+        <p className={styles.welcome}>Search for a city to see the weather!</p>
+      )}
     </div>
   );
 }

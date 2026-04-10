@@ -61,3 +61,13 @@
   align-items: center;
   gap: 10px;
 }
+.error{
+  margin-top: 20px;
+  color: red;
+  font-size: 1.5rem;
+}
+.welcome{
+  color: white;
+  font-size: 1.5rem;
+  margin-top: 20px;
+}
